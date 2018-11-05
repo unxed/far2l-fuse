@@ -356,7 +356,6 @@ int Plugin::setDirectory(HANDLE Plugin, const wchar_t* Dir, int OpMode)
 
                 // only sftp supported for now
                 if (c_protocol != "sftp") {
-                    //const wchar_t* msgItems[1] = { nullptr };
                     msgItems[1] = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MProtocolNotification);
                     m_pPsi.Message(m_pPsi.ModuleNumber, FMSG_WARNING | FMSG_MB_OK,
                                    nullptr, msgItems, ARRAYSIZE(msgItems), 0);
