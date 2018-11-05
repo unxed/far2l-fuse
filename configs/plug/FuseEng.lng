@@ -50,7 +50,9 @@
 "Ne&w panel for search results"
 "Save file list as"
 
-"Only sftp:// URLs are supported for now."
+"Only sftp:// URLs are supported for now"
+"Run 'ssh USER@HOST' to verify host key"
+
 "Resource"
 "Resource URL (smb://, sftp://, webdav:// ...)"
 "User"

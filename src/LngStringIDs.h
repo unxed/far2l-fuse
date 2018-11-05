@@ -61,6 +61,8 @@ enum LngStringsID
   MListFilePath,
 
   MProtocolNotification,
+  MUnKnownHostNotification,
+
   MResourceTitle,
   MResourceUrl,
   MUser,
