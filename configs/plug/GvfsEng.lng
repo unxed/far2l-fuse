@@ -50,6 +50,7 @@
 "Ne&w panel for search results"
 "Save file list as"
 
+"Only sftp:// URLs are supported for now."
 "Resource"
 "Resource URL (smb://, sftp://, webdav:// ...)"
 "User"

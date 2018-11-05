@@ -60,6 +60,7 @@ enum LngStringsID
   MNewPanelForSearchResults,
   MListFilePath,
 
+  MProtocolNotification,
   MResourceTitle,
   MResourceUrl,
   MUser,

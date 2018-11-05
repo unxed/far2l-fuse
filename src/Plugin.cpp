@@ -354,6 +354,15 @@ int Plugin::setDirectory(HANDLE Plugin, const wchar_t* Dir, int OpMode)
                 std::string c_host = c_url.substr(c_url.find(c_delimiter) + 3, c_url.length());
                 std::string c_mpid = c_user + "@" + c_host;
 
+                // only sftp supported for now
+                if (c_protocol != "sftp") {
+                    //const wchar_t* msgItems[1] = { nullptr };
+                    msgItems[1] = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MProtocolNotification);
+                    m_pPsi.Message(m_pPsi.ModuleNumber, FMSG_WARNING | FMSG_MB_OK,
+                                   nullptr, msgItems, ARRAYSIZE(msgItems), 0);
+                    return 0;
+                }
+
                 const char * rtdir_raw = getenv("XDG_RUNTIME_DIR");
                 std::string c_rtdir (rtdir_raw);
 
