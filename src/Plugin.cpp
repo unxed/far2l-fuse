@@ -61,36 +61,12 @@ void Plugin::setStartupInfo(const PluginStartupInfo* psi)
     // load mount points from registry
     MountPointStorage storage(m_registryRoot);
     storage.LoadAll(m_mountPoints);
-    // gtkmm initialization
-    //Gio::init();
-    // Запускается главный цикл обработки сигналов от gtkmm (glib).
-    //GvfsServiceMonitor::instance().run();
 }
 
 void Plugin::exitFar()
 {
-    //GvfsServiceMonitor::instance().quit();
-    if (Configuration::Instance()->unmountAtExit())
-    {
-        // unmount all VFS, mounted in current session
-        for (auto& mntPoint : m_mountPoints)
-        {
-            /*
-            if (mntPoint.second.isMounted())
-                try
-                {
-                    //GvfsService service;
-                    m_processedPointId = mntPoint.second.getStorageId();
-                    mntPoint.second.unmount(&service);
-                    m_processedPointId.clear();
-                }
-                catch (const GvfsServiceException& error)
-                {
-                    // ignore error here
-                }
-            */
-        }
-    }
+    // todo: как-то учитывать монтирования, созданные только в этой сессии,
+    // и опционально разъединять при выходе только их
 }
 
 void Plugin::getPluginInfo(PluginInfo* info)
@@ -388,41 +364,16 @@ int Plugin::setDirectory(HANDLE Plugin, const wchar_t* Dir, int OpMode)
                 f = popen(cmd.c_str(), "r");
                 pclose(f);
 
-                /*
-                try
-                {
-                    UiCallbacks callbacks(m_pPsi);
-                    //GvfsService service(&callbacks);
-                    msgItems[0] = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MResourceMount);
-                    msgItems[1] = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MPleaseWait);
-                    m_pPsi.Message(m_pPsi.ModuleNumber, 0, nullptr, msgItems,
-                                   ARRAYSIZE(msgItems), 0);
-                    // для сообщения об ошибке
-                    msgItems[0] = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MMountError);
-                    m_processedPointId = it->second.getStorageId();
-                    isMount = it->second.mount(&service);
-                    m_processedPointId.clear();
-                }
-                catch (const GvfsServiceException& error)
-                {
-                    std::wstring buf(StrMB2Wide(error.what().raw()));
-                    msgItems[1] = buf.c_str();
-                    m_pPsi.Message(m_pPsi.ModuleNumber, FMSG_WARNING | FMSG_MB_OK,
-                                   nullptr, msgItems, ARRAYSIZE(msgItems), 0);
-                }
-                */
                 m_pPsi.RestoreScreen(hScreen);
                 // FIXME if (!isMount) return 0;
             }
+            // fixme: fix getMountPath
             // change directory to:
             //std::wstring dir = it->second.getMountPath();
             std::wstring dir = StrMB2Wide(c_mpath);
-            //if (!dir.empty())
-            {
-                m_pPsi.Control(Plugin, FCTL_CLOSEPLUGIN, 0, (LONG_PTR)(dir.c_str()));
+            m_pPsi.Control(Plugin, FCTL_CLOSEPLUGIN, 0, (LONG_PTR)(dir.c_str()));
 
-                return 1;
-            }
+            return 1;
         }
     }
     return 0;
@@ -538,10 +489,9 @@ void Plugin::onPointMounted()
         if (!mountPoint.second.isMounted() &&
             (mountPoint.second.getStorageId() != m_processedPointId))
         {
-            /*GvfsService service;
-            mountPoint.second.mountCheck(&service);
+            // todo: fix mountCheck
+            // mountPoint.second.mountCheck();
             if (mountPoint.second.isMounted()) changed = true;
-            */
         }
     }
     lck.unlock();
@@ -570,18 +520,9 @@ void Plugin::onPointUnmounted(const std::string& name, const std::string& path,
             (mountPoint.second.getProto() == MountPoint::SchemeToProto(scheme)) &&
             (mountPoint.second.getMountPath().find(wpath) == 0))
         {
-            // фактически точка уже отмонтирована, поэтому "большой круг"
-            // много времени не займет
-            /*GvfsService service;
-            try
-            {
-                mountPoint.second.unmount(&service);
-            }
-            catch (const GvfsServiceException& error)
-            {
-                // ignore error here
-            }
-            changed = true;*/
+            // todo: fix unmount()
+            // mountPoint.second.unmount();
+            changed = true;
         }
     }
     lck.unlock();
@@ -647,27 +588,10 @@ void Plugin::unmountResource(MountPoint& point)
     f = popen(cmd.c_str(), "r");
     pclose(f);
 
-    // cause random hangs [if device busy?]
-    //cmd = "rm -f $XDG_RUNTIME_DIR/far2l-fuse/" + c_mpid;
-    //f = popen(cmd.c_str(), "r");
-    //pclose(f);
-
-    /*
-    try
-    {
-        GvfsService service;
-        m_processedPointId = point.getStorageId();
-        point.unmount(&service);
-        m_processedPointId.clear();
-    }
-    catch (const GvfsServiceException& error)
-    {
-        std::wstring buf(StrMB2Wide(error.what().raw()));
-        msgItems[1] = buf.c_str();
-        m_pPsi.Message(m_pPsi.ModuleNumber, FMSG_WARNING | FMSG_MB_OK,
-                       nullptr, msgItems, ARRAYSIZE(msgItems), 0);
-    }
-    */
+    // todo: fix unmount()
+    // m_processedPointId = point.getStorageId();
+    // point.unmount();
+    // m_processedPointId.clear();
 }
 
 PluginPanelItem* Plugin::getPanelCurrentItem(HANDLE Plugin)
@@ -699,8 +623,8 @@ void Plugin::checkResourcesStatus()
     std::lock_guard<std::mutex> lck(m_pointsMutex);
     for (auto& mountPoint : m_mountPoints)
     {
-        //GvfsService service;
-        //mountPoint.second.mountCheck(&service);
+        //todo: fix mountCheck()
+        //mountPoint.second.mountCheck();
     }
     m_pPsi.RestoreScreen(hScreen);
 }

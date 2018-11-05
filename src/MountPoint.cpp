@@ -36,11 +36,9 @@ MountPoint::MountPoint():
 MountPoint::EProtocol MountPoint::SchemeToProto(const std::string& scheme)
 {
     MountPoint::EProtocol ret = EProtocol::Unknown;
-    if (scheme == "file") ret = EProtocol::File;
-    else if (scheme == "ftp") ret = EProtocol::Ftp;
-    else if (scheme == "http") ret = EProtocol::Http;
+    if (scheme == "sftp") ret = EProtocol::Sftp;
     else if (scheme == "smb") ret = EProtocol::Samba;
-    else if (scheme == "sftp") ret = EProtocol::Sftp;
+    // todo: webdav
     return ret;
 }
 
@@ -55,15 +53,8 @@ bool MountPoint::mount()
     if (isMounted()) return true;
     if (url.empty()) return false;
 
-    /*bool success = service->mount(url, userName, password);
-    if (success)
-    {
-        m_proto = MountPoint::SchemeToProto(service->getMountScheme());
-        StrMB2Wide(service->getMountPath(), m_mountPointPath);
-        StrMB2Wide(service->getMountName(), m_shareName);
-    }
-    return success;
-/*    return true;
+    // todo: to be implemented
+    return true;
 }
 
 bool MountPoint::unmount()
@@ -73,26 +64,7 @@ bool MountPoint::unmount()
     std::string url(StrWide2MB(this->m_url));
     if (url.empty()) return false;
 
-    /*bool success = false;
-    try
-    {
-        success = service->umount(url);
-    }
-    catch (const GvfsServiceException& e)
-    {
-        // exception equal to unmount
-        m_shareName.clear();
-        m_mountPointPath.clear();
-        m_proto = EProtocol::Unknown;
-        throw; // escalate error
-    }
-    if (success)
-    {
-        m_shareName.clear();
-        m_mountPointPath.clear();
-        m_proto = EProtocol::Unknown;
-    }
-    return success;*/
+    // todo: to be implemented
     return true;
 }
 
@@ -106,16 +78,20 @@ void MountPoint::mountCheck()
         m_proto = EProtocol::Unknown;
         return;
     }
-/*    if (service->mounted(url))
-        {
-            m_proto = MountPoint::SchemeToProto(service->getMountScheme());
-            StrMB2Wide(service->getMountPath(), m_mountPointPath);
-            StrMB2Wide(service->getMountName(), m_shareName);
-        }
-        else
-        {
-            m_shareName.clear();
-            m_mountPointPath.clear();
-            m_proto = EProtocol::Unknown;
-        }*/
+    bool mounted;
+    // todo: to be implemented
+    /*
+    if (mounted)
+    {
+        m_proto = MountPoint::SchemeToProto(service->getMountScheme());
+        StrMB2Wide(service->getMountPath(), m_mountPointPath);
+        StrMB2Wide(service->getMountName(), m_shareName);
+    }
+    else
+    {
+        m_shareName.clear();
+        m_mountPointPath.clear();
+        m_proto = EProtocol::Unknown;
+    }
+    */
 }
