@@ -2,6 +2,8 @@
 
 English version is below.
 
+---
+
 Очень простое дополнение к [far2l](https://github.com/elfmz/far2l). Обертка вокруг FUSE. Основана на коде [far-gvfs](https://github.com/cycleg/far-gvfs).
 
 Альфа-версия, **использование на свой страх и риск!**
