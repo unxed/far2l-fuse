@@ -127,7 +127,7 @@ SHAREDSYMBOL HANDLE WINAPI OpenFilePluginW(const wchar_t * fileName, const uint8
         return INVALID_HANDLE_VALUE;
     }
     std::wstring name(fileName);
-    std::wstring ext(L".gvfsmounts");
+    std::wstring ext(L".fusemounts");
     if(!std::equal(name.rbegin(), name.rbegin()+ext.size(), ext.rbegin(), ext.rend()))
     {
         return INVALID_HANDLE_VALUE;

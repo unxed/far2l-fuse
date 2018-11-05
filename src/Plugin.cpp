@@ -2,11 +2,8 @@
 #include <utils.h>
 #include "Configuration.h"
 #include "dialogs.h"
-#include "GvfsService.h"
-#include "GvfsServiceMonitor.h"
 #include "LngStringIDs.h"
 #include "MountPointStorage.h"
-#include "UiCallbacks.h"
 #include "Plugin.h"
 
 #define UNUSED(x) (void)x;
@@ -65,23 +62,24 @@ void Plugin::setStartupInfo(const PluginStartupInfo* psi)
     MountPointStorage storage(m_registryRoot);
     storage.LoadAll(m_mountPoints);
     // gtkmm initialization
-    Gio::init();
+    //Gio::init();
     // Запускается главный цикл обработки сигналов от gtkmm (glib).
-    GvfsServiceMonitor::instance().run();
+    //GvfsServiceMonitor::instance().run();
 }
 
 void Plugin::exitFar()
 {
-    GvfsServiceMonitor::instance().quit();
+    //GvfsServiceMonitor::instance().quit();
     if (Configuration::Instance()->unmountAtExit())
     {
         // unmount all VFS, mounted in current session
         for (auto& mntPoint : m_mountPoints)
         {
+            /*
             if (mntPoint.second.isMounted())
                 try
                 {
-                    GvfsService service;
+                    //GvfsService service;
                     m_processedPointId = mntPoint.second.getStorageId();
                     mntPoint.second.unmount(&service);
                     m_processedPointId.clear();
@@ -90,6 +88,7 @@ void Plugin::exitFar()
                 {
                     // ignore error here
                 }
+            */
         }
     }
 }
@@ -105,12 +104,12 @@ void Plugin::getPluginInfo(PluginInfo* info)
     info->DiskMenuStringsNumber = Opt.AddToDisksMenu ? ARRAYSIZE(DiskMenuStrings) : 0;
 
     static const wchar_t* PluginMenuStrings[1];
-    PluginMenuStrings[0] = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MGvfsPanel);
+    PluginMenuStrings[0] = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MFusePanel);
     info->PluginMenuStrings = Opt.AddToPluginsMenu ? PluginMenuStrings : nullptr;
     info->PluginMenuStringsNumber = Opt.AddToPluginsMenu ? ARRAYSIZE(PluginMenuStrings) : 0;
 
     static const wchar_t* PluginCfgStrings[1];
-    PluginCfgStrings[0] = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MGvfsPanel);
+    PluginCfgStrings[0] = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MFusePanel);
     info->PluginConfigStrings = PluginCfgStrings;
     info->PluginConfigStringsNumber = ARRAYSIZE(PluginCfgStrings);
     info->CommandPrefix = Opt.Prefix;
@@ -161,7 +160,7 @@ void Plugin::getOpenPluginInfo(HANDLE Plugin, OpenPluginInfo* pluginInfo)
 {
     UNUSED(Plugin)
 
-    static const wchar_t* pluginPanelTitle = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MGvfsPanel);
+    static const wchar_t* pluginPanelTitle = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MFusePanel);
     pluginInfo->StructSize = sizeof(*pluginInfo);
     pluginInfo->PanelTitle = pluginPanelTitle;
     // panel modes
@@ -293,7 +292,7 @@ int Plugin::processKey(HANDLE Plugin, int key, unsigned int controlState)
         std::wstring name = item->CustomColumnData[1];
         free(item);
         auto it = m_mountPoints.find(name);
-        if ((it != m_mountPoints.end()) && it->second.isMounted())
+        if ((it != m_mountPoints.end()) /*&& it->second.isMounted() */)
         {
             unmountResource(it->second);
             m_pPsi.Control(Plugin, FCTL_UPDATEPANEL, 0, 0);
@@ -328,7 +327,10 @@ int Plugin::setDirectory(HANDLE Plugin, const wchar_t* Dir, int OpMode)
         auto it = m_mountPoints.find(std::wstring(Dir));
         if (it != m_mountPoints.end())
         {
-            if (!it->second.isMounted())
+            std::string c_mpath;
+            FILE *f;
+            std::string cmd;
+            // FIXME if (!it->second.isMounted())
             {
                 const wchar_t* msgItems[2] = { nullptr };
                 bool isMount = false;
@@ -338,10 +340,52 @@ int Plugin::setDirectory(HANDLE Plugin, const wchar_t* Dir, int OpMode)
                   if (!AskPasswordDlg(m_pPsi, it->second)) return 0;
                 }
                 hScreen = m_pPsi.SaveScreen(0, 0, -1, -1);
+                
+                cmd = "mkdir $XDG_RUNTIME_DIR/far2l-fuse/";
+                f = popen(cmd.c_str(), "r");
+                pclose(f);
+
+                std::string c_url = StrWide2MB(it->second.getUrl());
+                std::string c_user = StrWide2MB(it->second.getUser());
+                std::string c_password = EscapeQuotas(StrWide2MB(it->second.getPassword()));
+
+                std::string c_delimiter = "://";
+                std::string c_protocol = c_url.substr(0, c_url.find(c_delimiter));
+                std::string c_host = c_url.substr(c_url.find(c_delimiter) + 3, c_url.length());
+                std::string c_mpid = c_user + "@" + c_host;
+
+                const char * rtdir_raw = getenv("XDG_RUNTIME_DIR");
+                std::string c_rtdir (rtdir_raw);
+
+                c_mpath = "$XDG_RUNTIME_DIR/far2l-fuse/" + c_mpid;
+                c_mpath = c_rtdir + "/far2l-fuse/" + c_mpid;
+
+                cmd = "mkdir " + EscapeQuotas(c_mpath);
+                f = popen(cmd.c_str(), "r");
+                pclose(f);
+
+                // todo: mount commands depending on protocol
+                // todo: mount point paths depending on protocol
+                // todo: unmount all on far2l exit
+                // todo: check mount status
+                // mount -t cifs //host/dir /mount/point -o user=user,pass=pass,uid=pi,iocharset=utf8,file_mode=0777,dir_mode=0777,noperm
+                // mount -t davfs http(s)://addres:<port>/path /mount/point
+                cmd =
+                    "echo " +
+                    c_password +
+                    " | sshfs " +
+                    c_mpid +
+                    ":/ " +
+                    EscapeQuotas(c_mpath) +
+                    " -o password_stdin";
+                f = popen(cmd.c_str(), "r");
+                pclose(f);
+
+                /*
                 try
                 {
                     UiCallbacks callbacks(m_pPsi);
-                    GvfsService service(&callbacks);
+                    //GvfsService service(&callbacks);
                     msgItems[0] = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MResourceMount);
                     msgItems[1] = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MPleaseWait);
                     m_pPsi.Message(m_pPsi.ModuleNumber, 0, nullptr, msgItems,
@@ -359,14 +403,17 @@ int Plugin::setDirectory(HANDLE Plugin, const wchar_t* Dir, int OpMode)
                     m_pPsi.Message(m_pPsi.ModuleNumber, FMSG_WARNING | FMSG_MB_OK,
                                    nullptr, msgItems, ARRAYSIZE(msgItems), 0);
                 }
+                */
                 m_pPsi.RestoreScreen(hScreen);
-                if (!isMount) return 0;
+                // FIXME if (!isMount) return 0;
             }
             // change directory to:
-            std::wstring dir = it->second.getMountPath();
-            if (!dir.empty())
+            //std::wstring dir = it->second.getMountPath();
+            std::wstring dir = StrMB2Wide(c_mpath);
+            //if (!dir.empty())
             {
                 m_pPsi.Control(Plugin, FCTL_SETPANELDIR, 0, (LONG_PTR)(dir.c_str()));
+
                 return 1;
             }
         }
@@ -421,7 +468,7 @@ int Plugin::deleteFiles(HANDLE Plugin, PluginPanelItem* PanelItem, int itemsNumb
         {
             std::lock_guard<std::mutex> lck(m_pointsMutex);
             MountPointStorage storage(m_registryRoot);
-            if (it->second.isMounted())
+            // if (it->second.isMounted())
             {
                 unmountResource(it->second);
             }
@@ -484,9 +531,10 @@ void Plugin::onPointMounted()
         if (!mountPoint.second.isMounted() &&
             (mountPoint.second.getStorageId() != m_processedPointId))
         {
-            GvfsService service;
+            /*GvfsService service;
             mountPoint.second.mountCheck(&service);
             if (mountPoint.second.isMounted()) changed = true;
+            */
         }
     }
     lck.unlock();
@@ -517,7 +565,7 @@ void Plugin::onPointUnmounted(const std::string& name, const std::string& path,
         {
             // фактически точка уже отмонтирована, поэтому "большой круг"
             // много времени не займет
-            GvfsService service;
+            /*GvfsService service;
             try
             {
                 mountPoint.second.unmount(&service);
@@ -526,7 +574,7 @@ void Plugin::onPointUnmounted(const std::string& name, const std::string& path,
             {
                 // ignore error here
             }
-            changed = true;
+            changed = true;*/
         }
     }
     lck.unlock();
@@ -575,6 +623,29 @@ void Plugin::unmountResource(MountPoint& point)
 {
     const wchar_t* msgItems[2] = { nullptr };
     msgItems[0] = m_pPsi.GetMsg(m_pPsi.ModuleNumber, MUnmountError);
+
+    FILE *f;
+    std::string cmd;
+    
+    std::string c_url = StrWide2MB(point.getUrl());
+    std::string c_user = StrWide2MB(point.getUser());
+    std::string c_password = EscapeQuotas(StrWide2MB(point.getPassword()));
+
+    std::string c_delimiter = "://";
+    std::string c_protocol = c_url.substr(0, c_url.find(c_delimiter));
+    std::string c_host = c_url.substr(c_url.find(c_delimiter) + 3, c_url.length());
+    std::string c_mpid = EscapeQuotas(c_user + "@" + c_host);
+
+    cmd = "fusermount -u $XDG_RUNTIME_DIR/far2l-fuse/" + c_mpid;
+    f = popen(cmd.c_str(), "r");
+    pclose(f);
+
+    // cause random hangs [if device busy?]
+    //cmd = "rm -f $XDG_RUNTIME_DIR/far2l-fuse/" + c_mpid;
+    //f = popen(cmd.c_str(), "r");
+    //pclose(f);
+
+    /*
     try
     {
         GvfsService service;
@@ -589,6 +660,7 @@ void Plugin::unmountResource(MountPoint& point)
         m_pPsi.Message(m_pPsi.ModuleNumber, FMSG_WARNING | FMSG_MB_OK,
                        nullptr, msgItems, ARRAYSIZE(msgItems), 0);
     }
+    */
 }
 
 PluginPanelItem* Plugin::getPanelCurrentItem(HANDLE Plugin)
@@ -620,8 +692,8 @@ void Plugin::checkResourcesStatus()
     std::lock_guard<std::mutex> lck(m_pointsMutex);
     for (auto& mountPoint : m_mountPoints)
     {
-        GvfsService service;
-        mountPoint.second.mountCheck(&service);
+        //GvfsService service;
+        //mountPoint.second.mountCheck(&service);
     }
     m_pPsi.RestoreScreen(hScreen);
 }

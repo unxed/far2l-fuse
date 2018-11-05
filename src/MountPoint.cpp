@@ -1,6 +1,5 @@
 #include <string>
 #include <utils.h> // far2l/utils
-#include "GvfsService.h"
 #include "MountPoint.h"
 
 MountPoint::MountPoint(const MountPoint& other)
@@ -45,7 +44,7 @@ MountPoint::EProtocol MountPoint::SchemeToProto(const std::string& scheme)
     return ret;
 }
 
-bool MountPoint::mount(GvfsService* service)
+bool MountPoint::mount()
 {
     std::string url(StrWide2MB(m_url));
     std::string userName(StrWide2MB(m_user));
@@ -56,7 +55,7 @@ bool MountPoint::mount(GvfsService* service)
     if (isMounted()) return true;
     if (url.empty()) return false;
 
-    bool success = service->mount(url, userName, password);
+    /*bool success = service->mount(url, userName, password);
     if (success)
     {
         m_proto = MountPoint::SchemeToProto(service->getMountScheme());
@@ -64,16 +63,17 @@ bool MountPoint::mount(GvfsService* service)
         StrMB2Wide(service->getMountName(), m_shareName);
     }
     return success;
+/*    return true;
 }
 
-bool MountPoint::unmount(GvfsService* service)
+bool MountPoint::unmount()
 {
     if (!isMounted()) return true;
 
     std::string url(StrWide2MB(this->m_url));
     if (url.empty()) return false;
 
-    bool success = false;
+    /*bool success = false;
     try
     {
         success = service->umount(url);
@@ -92,10 +92,11 @@ bool MountPoint::unmount(GvfsService* service)
         m_mountPointPath.clear();
         m_proto = EProtocol::Unknown;
     }
-    return success;
+    return success;*/
+    return true;
 }
 
-void MountPoint::mountCheck(GvfsService* service)
+void MountPoint::mountCheck()
 {
     std::string url(StrWide2MB(m_url));
     if (url.empty())
@@ -105,7 +106,7 @@ void MountPoint::mountCheck(GvfsService* service)
         m_proto = EProtocol::Unknown;
         return;
     }
-    if (service->mounted(url))
+/*    if (service->mounted(url))
         {
             m_proto = MountPoint::SchemeToProto(service->getMountScheme());
             StrMB2Wide(service->getMountPath(), m_mountPointPath);
@@ -116,5 +117,5 @@ void MountPoint::mountCheck(GvfsService* service)
             m_shareName.clear();
             m_mountPointPath.clear();
             m_proto = EProtocol::Unknown;
-        }
+        }*/
 }

@@ -15,8 +15,8 @@ enum LngStringsID
   MError,
   MWarning,
 
-  MGvfsPanel,
-  MGvfsPanelTitleNum,
+  MFusePanel,
+  MFusePanelTitleNum,
 
   MDiskMenuString,
 
@@ -25,8 +25,8 @@ enum LngStringsID
   MAltShiftF2,
   MAltShiftF3,
 
-  MGvfsUpdate,
-  MGvfsSendFiles,
+  MFuseUpdate,
+  MFuseSendFiles,
 
   MSwitchMenuTxt,
   MSwitchMenuTitle,

@@ -16,7 +16,7 @@
 
 using namespace std::placeholders;
 
-const char* RecordLabel = "Far-gvfs password record";
+const char* RecordLabel = "far2l-fuse password record";
 
 namespace {
 
@@ -137,7 +137,7 @@ const SecretSchema* SecretServiceStorageSchema() G_GNUC_CONST;
 const SecretSchema* SecretServiceStorageSchema()
 {
     static const SecretSchema the_schema = {
-        "org.far2l.gvfspanel.secure.storage.password", SECRET_SCHEMA_NONE,
+        "org.far2l.far2l-fuse.secure.storage.password", SECRET_SCHEMA_NONE,
         {
             {  "id", SECRET_SCHEMA_ATTRIBUTE_STRING }, ///< MountPoint storage ID
             {  "NULL", SECRET_SCHEMA_ATTRIBUTE_STRING },

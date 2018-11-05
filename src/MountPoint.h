@@ -4,10 +4,10 @@
 #pragma once
 
 #include <string>
-#include "GvfsServiceException.h"
+/*#include "GvfsServiceException.h"
 
 class GvfsService;
-
+*/
 class MountPointStorage;
 
 ///
@@ -208,7 +208,7 @@ class MountPoint
     /// перед монтированием ресурса, но после вызова mount() при выставленном
     /// флаге пароль всегда будет пустым.
     ///
-    bool mount(GvfsService* service);
+    bool mount();
     ///
     /// Отсоединить ресурс от локальной файловой системы.
     ///
@@ -228,7 +228,7 @@ class MountPoint
     /// Если ресурса не смонтирован, то метод сразу возвращает true. Если
     /// ресурсу не назначен URL, то метод сразу возвращает false.
     ///
-    bool unmount(GvfsService* service);
+    bool unmount();
     ///
     /// Проверить статус смонтированности ресурса.
     ///
@@ -241,7 +241,7 @@ class MountPoint
     /// #m_mountPointPath и #m_shareName сбрасываются, а свойство #m_proto
     /// выставляется в Unknown.
     ///
-    void mountCheck(GvfsService* service);
+    void mountCheck();
 
   private:
     ///

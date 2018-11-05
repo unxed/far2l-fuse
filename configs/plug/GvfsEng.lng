@@ -5,23 +5,23 @@
 "Error"
 "Warning"
 
-"GVFS panel"
-" %sGVFS panel [%d] "
+"FUSE panel"
+" %sFUSE panel [%d] "
 
-"GVFS"
+"FUSE"
 
 "Remove"
 "Switch"
 "SavLst"
 "Goto"
 
-"Updating GVFS panel contents"
-"Sending files to GVFS panel"
+"Updating FUSE panel contents"
+"Sending files to FUSE panel"
 
 "Total files:"
-"Available GVFS panels"
+"Available FUSE panels"
 
-"GVFS panel"
+"FUSE panel"
 "Unmount resources at FAR exit"
 "Store passwords in system secret storage"
 "Add to &Disks menu"

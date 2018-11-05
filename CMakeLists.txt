@@ -1,35 +1,24 @@
-project(gvfspanel)
+project(far2l-fuse)
 
 set(HEADERS
     src/Configuration.h
     src/dialogs.h
-    src/glibmmconf.h
-    src/GvfsService.h
-    src/GvfsServiceException.h
-    src/GvfsServiceMonitor.h
-    src/JobUnitQueue.h
     src/KeyBarTitlesHelper.h
     src/LngStringIDs.h
     src/MountPoint.h
     src/MountPointStorage.h
     src/Plugin.h
     src/RegistryStorage.h
-    src/TextFormatter.h
-    src/UiCallbacks.h
 )
 
 set(SOURCES
     src/Configuration.cpp
     src/dialogs.cpp
-    src/GvfsService.cpp
-    src/GvfsServiceMonitor.cpp
     src/KeyBarTitlesHelper.cpp
     src/MountPoint.cpp
     src/MountPointStorage.cpp
     src/Plugin.cpp
     src/RegistryStorage.cpp
-    src/TextFormatter.cpp
-    src/UiCallbacks.cpp
     src/PluginMain.cpp
 )
 
