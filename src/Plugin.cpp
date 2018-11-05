@@ -357,7 +357,6 @@ int Plugin::setDirectory(HANDLE Plugin, const wchar_t* Dir, int OpMode)
                 const char * rtdir_raw = getenv("XDG_RUNTIME_DIR");
                 std::string c_rtdir (rtdir_raw);
 
-                c_mpath = "$XDG_RUNTIME_DIR/far2l-fuse/" + c_mpid;
                 c_mpath = c_rtdir + "/far2l-fuse/" + c_mpid;
 
                 cmd = "mkdir " + EscapeQuotas(c_mpath);
@@ -412,7 +411,7 @@ int Plugin::setDirectory(HANDLE Plugin, const wchar_t* Dir, int OpMode)
             std::wstring dir = StrMB2Wide(c_mpath);
             //if (!dir.empty())
             {
-                m_pPsi.Control(Plugin, FCTL_SETPANELDIR, 0, (LONG_PTR)(dir.c_str()));
+                m_pPsi.Control(Plugin, FCTL_CLOSEPLUGIN, 0, (LONG_PTR)(dir.c_str()));
 
                 return 1;
             }
@@ -636,7 +635,7 @@ void Plugin::unmountResource(MountPoint& point)
     std::string c_host = c_url.substr(c_url.find(c_delimiter) + 3, c_url.length());
     std::string c_mpid = EscapeQuotas(c_user + "@" + c_host);
 
-    cmd = "fusermount -u $XDG_RUNTIME_DIR/far2l-fuse/" + c_mpid;
+    cmd = "fusermount -z -u $XDG_RUNTIME_DIR/far2l-fuse/" + c_mpid;
     f = popen(cmd.c_str(), "r");
     pclose(f);
 
